@@ -1,0 +1,33 @@
+
+
+
+{% extends 'weather/base.html' %}
+{% block content %}
+
+
+  <article>
+    <header>
+      <h2>Select State</h2>
+    </header>
+
+  
+    {% if states %}
+    <ul>
+      {% for state in states %}
+        {% if state.state_name == "Michigan" %}
+          <li><a class = "text-primary" href="{% url 'cities' state.pk %}">{{ state.state_name | safe }}</a></li>
+        {% else %}
+          <li class = "text-secondary"><del>{{ state.state_name | safe }}</del></li>     
+        {% endif %}
+      {% endfor %}
+
+    </ul>
+    {% else %}
+    <p>No States are available to view.</p>
+    {% endif %}
+
+  </article>
+
+
+
+{% endblock content %}}    

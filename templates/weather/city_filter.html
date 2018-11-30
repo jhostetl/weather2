@@ -1,0 +1,29 @@
+{% extends 'weather/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-sm-3">
+      <div class="px-2 py-2" style="border:1px solid #ccc;">
+        <form action="" method="get">
+          {{ filter.form|crispy }}
+          <!-- add a submit button -->
+          <button type="submit" class="btn btn-success">Search</button>
+        </form>
+      </div>
+    </div>
+    <div class="col-sm-9">
+      {% for site in object_list %}
+        <h4><a href="{% url 'weather_city' site.pk %}">{{ site.city_name | safe }}, {{ site.state | safe }}</a></h4>
+        <!-- add the country_area_names and description template tags -->
+
+    {% empty %}
+      Select one or more filters relevant to your search and then click "filter". 
+      <br><br>
+      Please note that only Detroit, Michigan has weather data. 
+    {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

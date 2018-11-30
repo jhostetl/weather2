@@ -1,0 +1,104 @@
+
+
+
+{% extends 'weather/base.html' %}
+{% block content %}
+
+
+  <article>
+    <header>
+      {% for row in queryset1 %}
+        <h2>{{ row.city_name }} Weather Details</h2>
+      {% endfor %}
+    </header>
+    <div class = "container">
+      <div class = "row">
+        <div class = "col-md-6">
+          <h5>Summary</h5>
+          <table class = "table table-bordered">
+            <tr>
+              <td class = "bg-light">Max Temp</td>
+              <td>{{ queryset2.temp__max | safe }}</td>
+            </tr> 
+            <tr>
+              <td class = "bg-light">Min Temp</td>
+              <td>{{ queryset3.temp__min | safe }}</td>
+            </tr> 
+            <tr>
+              <td class = "bg-light">Average Temp</td>
+              <td>{{ queryset4.temp__avg | safe }}</td>
+            </tr>       
+          </table>
+        </div>
+        <div class = "col-md-6">
+          <h5>Monthly Averages</h5>
+          <table class = "table table-bordered">
+            <tr>
+              <td class = "bg-light">
+                Month
+              </td>
+              <td class = "bg-light">Average Temperature</td>
+            </tr> 
+            <tr>
+              <td>
+                <a class = "text-primary" href="{% url 'weather_detail'  %}">January</a>
+              </td>
+              <td>{{ querysetM1.temp__avg | safe }}</td>
+            </tr> 
+            <tr>
+              <td>February Average</td>
+              <td>{{ querysetM2.temp__avg | safe }}</td>
+            </tr>       
+            <tr>
+              <td>March Average</td>
+              <td>{{ querysetM3.temp__avg | safe }}</td>
+            </tr>  
+            <tr>
+              <td>April Average</td>
+              <td>{{ querysetM4.temp__avg | safe }}</td>
+            </tr> 
+            <tr>
+              <td>May Average</td>
+              <td>{{ querysetM5.temp__avg | safe }}</td>
+            </tr>       
+            <tr>
+              <td>June Average</td>
+              <td>{{ querysetM6.temp__avg | safe }}</td>
+            </tr>  
+            <tr>
+              <td>July Average</td>
+              <td>{{ querysetM7.temp__avg | safe }}</td>
+            </tr> 
+            <tr>
+              <td>August Average</td>
+              <td>{{ querysetM8.temp__avg | safe }}</td>
+            </tr>       
+            <tr>
+              <td>September Average</td>
+              <td>{{ querysetM9.temp__avg | safe }}</td>
+            </tr>  
+            <tr>
+              <td>October Average</td>
+              <td>{{ querysetM10.temp__avg | safe }}</td>
+            </tr> 
+            <tr>
+              <td>November Average</td>
+              <td>{{ querysetM11.temp__avg | safe }}</td>
+            </tr>       
+            <tr>
+              <td>December Average</td>
+              <td>{{ querysetM12.temp__avg | safe }}</td>
+            </tr> 
+          </table>
+        </div>
+      </div>    
+    </div>
+
+
+              
+
+  </article>
+
+
+
+{% endblock content %}}    
