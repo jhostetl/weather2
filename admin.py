@@ -73,3 +73,20 @@ class TempsHourlyAdmin(admin.ModelAdmin):
 	ordering = ['time_period']
 
 
+@admin.register(models.Tags)
+class TagsAdmin(admin.ModelAdmin):
+	fields = [
+		'tag_name'
+	]
+
+	list_display = [
+		'tag_name',
+		'city_display'
+	]
+	ordering = ['tag_name']
+
+
+
+
+
+

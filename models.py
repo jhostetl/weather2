@@ -9,7 +9,7 @@ from django.db import models
 from django.urls import reverse
 
 class Continents(models.Model):
-    continents_id = models.AutoField(primary_key=True)
+    continent_id = models.AutoField(primary_key=True)
     continent_name = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -23,13 +23,13 @@ class Continents(models.Model):
 
 
 class Countries(models.Model):
-    countries_id = models.AutoField(primary_key=True)
+    country_id = models.AutoField(primary_key=True)
     continent = models.ForeignKey(Continents, models.DO_NOTHING, blank=True, null=True)
     country_name = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'countries'
+        db_table = 'countries2'
         verbose_name = 'Country'
         verbose_name_plural = 'Countries'
 
@@ -38,22 +38,23 @@ class Countries(models.Model):
 
 
 class States(models.Model):
-    states_id = models.AutoField(primary_key=True)
+    state_id = models.AutoField(primary_key=True)
     state_abbreviation = models.TextField(blank=True, null=True)
     state_name = models.TextField(blank=True, null=True)
     country = models.ForeignKey(Countries, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'states'
+        db_table = 'states2'
         verbose_name = 'State'
         verbose_name_plural = 'States'
 
     def __str__(self):
         return self.state_name
 
+
 class Cities(models.Model):
-    cities_id = models.AutoField(primary_key=True)
+    city_id = models.AutoField(primary_key=True)
     city_name = models.TextField(blank=True, null=True)
     state = models.ForeignKey('States', models.DO_NOTHING, blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
@@ -61,7 +62,7 @@ class Cities(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'cities'
+        db_table = 'cities2'
         verbose_name = 'City'
         verbose_name_plural = 'Cities'
 
@@ -70,14 +71,15 @@ class Cities(models.Model):
 
 
 class TempsHourly(models.Model):
-    temps_hourly_id = models.AutoField(primary_key=True)
-    city = models.ForeignKey('Cities', models.DO_NOTHING, blank=True, null=True)
+    hourly_weather_id = models.AutoField(primary_key=True)
+    city = models.ForeignKey(Cities, on_delete=models.CASCADE)
+
     time_period = models.CharField(blank=True, null=True, max_length=25)
     temp = models.FloatField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'temps_hourly'
+        db_table = 'hourly_weather2'
         verbose_name = 'Temp'
         verbose_name_plural = 'Temps'
 
@@ -90,16 +92,39 @@ class TempsHourly(models.Model):
     def __str__(self):
         return ("Temperature of {}".format(self.temp))
 
-class JohnCityTags(models.Model):
-    john_city_tags_id = models.AutoField(primary_key=True)
+
+class Tags(models.Model):
+    tag_id = models.AutoField(primary_key=True)
     tag_name = models.CharField(blank=True, null=True, max_length=245)
+    city = models.ManyToManyField(Cities, through='CityTags')
 
     class Meta:
         managed = False
-        db_table = 'john_city_tags'
+        db_table = 'tags'
         verbose_name = 'Tag'
         verbose_name_plural = 'Tags'
 
     def __str__(self):
         return self.tag_name
+
+    def city_display(self):
+        """This is required to display in the Admin view."""
+        return ', '.join(
+            city.city_name for city in self.city.all())
+
+class CityTags(models.Model):
+    city_tags_id = models.AutoField(primary_key=True)
+    city = models.ForeignKey(Cities, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tags, on_delete=models.CASCADE)
+
+    class Meta:
+        managed = False
+        db_table = 'tags'
+        ordering = ['city', 'tag']
+        verbose_name = 'City Tag'
+        verbose_name_plural = 'City Tags'
+
+
+
+
 

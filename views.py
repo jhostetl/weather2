@@ -2,11 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
 from django_filters.views import FilterView
-from .models import Cities
 from .models import Continents
 from .models import Countries
 from .models import States
+from .models import Cities
 from .models import TempsHourly
+from .models import Tags
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from .forms import TempsHourlyForm
@@ -25,51 +26,21 @@ class HomePageView(generic.TemplateView):
 	template_name = 'weather/home.html'
 
 
-class CityFilterView(FilterView):
-	filterset_class = CityFilter
-	template_name = 'weather/city_filter.html'
+class TagView(generic.ListView):
+	model = Tags
+	context_object_name = 'tags'
+	template_name = 'weather/tag.html'
 
+	def get_queryset(self):
+		return Tags.objects.all()
 
-class WeatherCityView(generic.ListView):
-	model = TempsHourly
-	context_object_name = 'hourly_temps'
-	template_name = 'weather/weather_city.html'
+class TagCitiesView(generic.ListView):
+	model = Tags
+	context_object_name = 'tag_cities'
+	template_name = 'weather/tag_cities.html'
 
-	def get_context_data(self, **kwargs):
-
-		context_data = super().get_context_data(**kwargs)
-		context_data['queryset1'] = Cities.objects.filter(cities_id=self.kwargs['pk'])
-		context_data['queryset2'] = TempsHourly.objects.filter(city_id = self.kwargs['pk']).aggregate(Max('temp'))
-		context_data['queryset3'] = TempsHourly.objects.filter(city_id = self.kwargs['pk']).aggregate(Min('temp'))
-		context_data['queryset4'] = TempsHourly.objects.filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-
-		context_data['querysetM1'] = TempsHourly.objects.filter(time_period__contains = "-01-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM2'] = TempsHourly.objects.filter(time_period__contains = "-02-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM3'] = TempsHourly.objects.filter(time_period__contains = "-03-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM4'] = TempsHourly.objects.filter(time_period__contains = "-04-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM5'] = TempsHourly.objects.filter(time_period__contains = "-05-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM6'] = TempsHourly.objects.filter(time_period__contains = "-06-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM7'] = TempsHourly.objects.filter(time_period__contains = "-07-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM8'] = TempsHourly.objects.filter(time_period__contains = "-08-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM9'] = TempsHourly.objects.filter(time_period__contains = "-09-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM10'] = TempsHourly.objects.filter(time_period__contains = "-10-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM11'] = TempsHourly.objects.filter(time_period__contains = "-11-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-		context_data['querysetM12'] = TempsHourly.objects.filter(time_period__contains = "-12-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
-
-		return context_data
-	
-
-class WeatherDetailView(generic.ListView):
-	model = TempsHourly
-	context_object_name = 'hourly_temps'
-	template_name = 'weather/weather_detail.html'
-	paginate_by = 10000
-
-	def get_context_data(self, **kwargs):
-		context_data = super().get_context_data(**kwargs)
-		context_data['queryset1'] = Cities.objects.filter(cities_id=21)
-		context_data['queryset2'] = TempsHourly.objects.filter(city_id=21).filter(time_period__contains = "-01-")
-		return context_data
+	def get_queryset(self):
+		return Tags.objects.all()
 
 
 class HourlyDetailView(generic.ListView):
@@ -79,8 +50,8 @@ class HourlyDetailView(generic.ListView):
 
 	def get_context_data(self, **kwargs):
 		context_data = super().get_context_data(**kwargs)
-		context_data['queryset1'] = Cities.objects.filter(cities_id=21)
-		context_data['queryset2'] = TempsHourly.objects.filter(temps_hourly_id = self.kwargs['pk'])
+		context_data['queryset1'] = Cities.objects.filter(city_id=21)
+		context_data['queryset2'] = TempsHourly.objects.filter(hourly_weather_id = self.kwargs['pk'])
 		return context_data
 
 
@@ -119,7 +90,7 @@ class HourlyUpdateView(generic.UpdateView):
 	# fields = '__all__' <-- superseded by form_class
 	context_object_name = 'hourly_temp'
 	# pk_url_kwarg = 'site_pk'
-	success_message = "Hourly Temp pdated successfully"
+	success_message = "Hourly Temp updated successfully"
 	template_name = 'weather/temp_update.html'
 
 	def dispatch(self, *args, **kwargs):
@@ -153,6 +124,53 @@ class HourlyDeleteView(generic.DeleteView):
 		self.object.delete()
 		return HttpResponseRedirect(self.get_success_url())
 
+
+class WeatherDetailView(generic.ListView):
+	model = TempsHourly
+	context_object_name = 'hourly_temps'
+	template_name = 'weather/weather_detail.html'
+	paginate_by = 10000
+
+	def get_context_data(self, **kwargs):
+		context_data = super().get_context_data(**kwargs)
+		context_data['queryset1'] = Cities.objects.filter(city_id=21)
+		context_data['queryset2'] = TempsHourly.objects.filter(city_id=21).filter(time_period__contains = "-01-")
+		return context_data
+
+
+class WeatherCityView(generic.ListView):
+	model = TempsHourly
+	context_object_name = 'hourly_temps'
+	template_name = 'weather/weather_city.html'
+
+	def get_context_data(self, **kwargs):
+
+		context_data = super().get_context_data(**kwargs)
+		context_data['queryset1'] = Cities.objects.filter(city_id=self.kwargs['pk'])
+		context_data['queryset2'] = TempsHourly.objects.filter(city_id = self.kwargs['pk']).aggregate(Max('temp'))
+		context_data['queryset3'] = TempsHourly.objects.filter(city_id = self.kwargs['pk']).aggregate(Min('temp'))
+		context_data['queryset4'] = TempsHourly.objects.filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+
+		context_data['querysetM1'] = TempsHourly.objects.filter(time_period__contains = "-01-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM2'] = TempsHourly.objects.filter(time_period__contains = "-02-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM3'] = TempsHourly.objects.filter(time_period__contains = "-03-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM4'] = TempsHourly.objects.filter(time_period__contains = "-04-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM5'] = TempsHourly.objects.filter(time_period__contains = "-05-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM6'] = TempsHourly.objects.filter(time_period__contains = "-06-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM7'] = TempsHourly.objects.filter(time_period__contains = "-07-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM8'] = TempsHourly.objects.filter(time_period__contains = "-08-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM9'] = TempsHourly.objects.filter(time_period__contains = "-09-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM10'] = TempsHourly.objects.filter(time_period__contains = "-10-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM11'] = TempsHourly.objects.filter(time_period__contains = "-11-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+		context_data['querysetM12'] = TempsHourly.objects.filter(time_period__contains = "-12-").filter(city_id = self.kwargs['pk']).aggregate(Avg('temp'))
+
+		return context_data
+
+class CityFilterView(FilterView):
+	filterset_class = CityFilter
+	template_name = 'weather/city_filter.html'
+
+
 class CityAreaListView(generic.ListView):
 	model = Cities
 	context_object_name = 'cities'
@@ -161,15 +179,12 @@ class CityAreaListView(generic.ListView):
 	def get_queryset(self):
 		return Cities.objects.filter(state_id=self.kwargs['pk'])
 
+
 class StateAreaListView(generic.ListView):
 	model = States
 	context_object_name = 'states'
 	template_name = 'weather/state_area.html'
 
-
-
-	def get_queryset(self):
-		return States.objects.filter(country_id=self.kwargs['pk'])
 
 class CountryAreaListView(generic.ListView):
 	model = Countries
@@ -180,15 +195,10 @@ class CountryAreaListView(generic.ListView):
 		return Countries.objects.filter(continent_id=self.kwargs['pk'])
 
 
-
-
 class ContinentAreaListView(generic.ListView):
-	model = Countries
+	model = Continents
 	context_object_name = 'continents'
 	template_name = 'weather/continent_area.html'
 
 	def get_queryset(self):
 		return Continents.objects.all().order_by('continent_name')
-
-
-
